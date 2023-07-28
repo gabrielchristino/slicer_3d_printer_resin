@@ -13,10 +13,38 @@ let ui = require('./ui.js');
 let canvas = document.createElement('canvas');
 canvas.width = printer.resolution.x;
 canvas.height = printer.resolution.y;
-let context = canvas.getContext('2d');
+let context = canvas.getContext('2d',{colorSpace:'srgb'});
 
 let zip = null;
 let slices = null;
+
+function fillCanvasBackgroundWithColor(context, color, width, height) {
+    // Get the 2D drawing context from the provided canvas.
+//    const context = canvas.getContext('2d');
+  
+    // We're going to modify the context state, so it's
+    // good practice to save the current state first.
+//    context.save();
+  
+    // Normally when you draw on a canvas, the new drawing
+    // covers up any previous drawing it overlaps. This is
+    // because the default `globalCompositeOperation` is
+    // 'source-over'. By changing this to 'destination-over',
+    // our new drawing goes behind the existing drawing. This
+    // is desirable so we can fill the background, while leaving
+    // the chart and any other existing drawing intact.
+    // Learn more about `globalCompositeOperation` here:
+    // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalCompositeOperation
+    context.globalCompositeOperation = 'destination-over';
+  
+    // Fill in the background. We do this by drawing a rectangle
+    // filling the entire canvas, using the provided color.
+    context.fillStyle = color;
+    context.fillRect(0, 0, width, height);
+  
+    // Restore the original context state from `context.save()`
+    context.restore();
+  }
 
 function next(i, n)
 {
@@ -26,17 +54,22 @@ function next(i, n)
 
         // Copy the pixels to a 2D canvas
         let image = context.createImageData(
-                printer.resolution.x, printer.resolution.y);
+                printer.resolution.x, printer.resolution.y,{colorSpace:'srgb'});
         image.data.set(data);
 
         // Load data into the context
         context.putImageData(image, 0, 0);
 
+        /*context.globalCompositeOperation = 'destination-over';
+        context.fillStyle = 'black';
+        context.fillRect(0, 0, printer.resolution.x, printer.resolution.y);
+        context.restore();*/
+
         // Convert data to a DataURL and save to the zip file
-        let png = canvas.toDataURL();
+        let png = canvas.toDataURL('image/bmp');
         let index = i + "";
         while (index.length < 4) index = "0" + index;
-        slices.file("out" + index + ".png",
+        slices.file("out" + index + ".bmp",
                     png.slice(png.indexOf(',') + 1, -1),
                     {base64: true});
 
@@ -73,7 +106,7 @@ document.getElementById("slice").onclick = function(event)
     // We map 3 inches to +/-1 on the X axis, so we use that ratio
     // to convert to Z in inches
     let zrange_mm = (bounds.zmax - bounds.zmin) / printer.getGLscale();
-    let count = Math.ceil(zrange_mm * 1000 / microns);
+    let count = Math.ceil(zrange_mm * 1000 * 1000 / microns);
 
     zip = new JSZip();
     ui.setStatus("Slicing...");

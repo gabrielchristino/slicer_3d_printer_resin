@@ -27,6 +27,9 @@
     "jszip": "^2.5.0",
     "convex-hull": "^1.0.0"
   },
+  "overrides": {
+    "graceful-fs": "^4.2.11"
+  },
   "browserify": {
     "transform": [
       "glslify"
