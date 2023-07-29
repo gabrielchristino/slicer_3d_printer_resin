@@ -1,7 +1,7 @@
 #define TEMPO_CURA  500 // tempo de cura da resina pela luz UV (ms)
 #define TEMPO_PAUSA 500 // tempo de cura da resina pela luz UV (ms)
 
-#define PASSOS_MM  2038 // passos do motor por mm movimentado
+#define PASSOS_MM  2038*3 // passos do motor por mm movimentado
 #define INTERVALO_PASSOS  5 // intervalo entre cada passo
 
 #include <Adafruit_GFX.h>         // Core graphics library
@@ -41,11 +41,11 @@ void setup(void) {
   
   habilitaPortas();
   iniciaTFT();
-  iniciaSD();
+  //iniciaSD();
 }
 
 void habilitaPortas() {
-  pinMode(2, INPUT);
+  pinMode(A1, INPUT);
   pinMode(3, OUTPUT);
   pinMode(4, OUTPUT);
   pinMode(5, OUTPUT);
@@ -64,6 +64,7 @@ void iniciaTFT() {
   tft.fillScreen(ILI9341_BLACK);
   tft.setRotation(0);
   delay(1000);
+  Serial.println("tela");
 }
 
 void iniciaSD() {
@@ -142,8 +143,9 @@ bool teclaPressionada = false;
 
 void loop() {
   if (!teclaPressionada) {
-    moverMM(-0.1);
-    teclaPressionada = digitalRead(2);
+    Serial.println("mover");
+    moverMM(0.1);
+    teclaPressionada = digitalRead(A1);
   }
   if (teclaPressionada && !impressaoFinalizada) {
     moverMM(0.2);
