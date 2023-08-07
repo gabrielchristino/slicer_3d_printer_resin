@@ -536,14 +536,14 @@ document.getElementById("rot_reset").onclick = function(event) {
 }
 
 document.getElementById("rot_x_plus").onclick = function(event) {
-    mesh.pitch += Math.PI/2;
+    mesh.pitch += Math.PI/36;
     getMeshBounds();
     renderSlice();
     draw();
 }
 
 document.getElementById("rot_x_minus").onclick = function(event) {
-    mesh.pitch -= Math.PI/2;
+    mesh.pitch -= Math.PI/36;
     getMeshBounds();
     renderSlice();
     draw();
@@ -551,28 +551,28 @@ document.getElementById("rot_x_minus").onclick = function(event) {
 
 
 document.getElementById("rot_y_plus").onclick = function(event) {
-    mesh.yaw += Math.PI/2;
+    mesh.yaw += Math.PI/36;
     getMeshBounds();
     renderSlice();
     draw();
 }
 
 document.getElementById("rot_y_minus").onclick = function(event) {
-    mesh.yaw -= Math.PI/2;
+    mesh.yaw -= Math.PI/36;
     getMeshBounds();
     renderSlice();
     draw();
 }
 
 document.getElementById("rot_z_plus").onclick = function(event) {
-    mesh.roll  += Math.PI/2;
+    mesh.roll  += Math.PI/36;
     getMeshBounds();
     renderSlice();
     draw();
 }
 
 document.getElementById("rot_z_minus").onclick = function(event) {
-    mesh.roll  -= Math.PI/2;
+    mesh.roll  -= Math.PI/36;
     mesh.pitch += 0;
     getMeshBounds();
     renderSlice();
