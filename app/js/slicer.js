@@ -18,34 +18,6 @@ let context = canvas.getContext('2d',{colorSpace:'srgb'});
 let zip = null;
 let slices = null;
 
-function fillCanvasBackgroundWithColor(context, color, width, height) {
-    // Get the 2D drawing context from the provided canvas.
-//    const context = canvas.getContext('2d');
-  
-    // We're going to modify the context state, so it's
-    // good practice to save the current state first.
-//    context.save();
-  
-    // Normally when you draw on a canvas, the new drawing
-    // covers up any previous drawing it overlaps. This is
-    // because the default `globalCompositeOperation` is
-    // 'source-over'. By changing this to 'destination-over',
-    // our new drawing goes behind the existing drawing. This
-    // is desirable so we can fill the background, while leaving
-    // the chart and any other existing drawing intact.
-    // Learn more about `globalCompositeOperation` here:
-    // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/globalCompositeOperation
-    context.globalCompositeOperation = 'destination-over';
-  
-    // Fill in the background. We do this by drawing a rectangle
-    // filling the entire canvas, using the provided color.
-    context.fillStyle = color;
-    context.fillRect(0, 0, width, height);
-  
-    // Restore the original context state from `context.save()`
-    context.restore();
-  }
-
 function next(i, n)
 {
     if (i < n)
@@ -59,11 +31,6 @@ function next(i, n)
 
         // Load data into the context
         context.putImageData(image, 0, 0);
-
-        /*context.globalCompositeOperation = 'destination-over';
-        context.fillStyle = 'black';
-        context.fillRect(0, 0, printer.resolution.x, printer.resolution.y);
-        context.restore();*/
 
         // Convert data to a DataURL and save to the zip file
         let png = canvas.toDataURL('image/bmp');
