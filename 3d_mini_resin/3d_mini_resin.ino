@@ -1,8 +1,8 @@
-#define TEMPO_CURA  3000 // tempo de cura da resina pela luz UV (ms)
-#define TEMPO_PAUSA 500 // tempo de cura da resina pela luz UV (ms)
+#define TEMPO_CURA  2000 // tempo de cura da resina pela luz UV (ms)
+#define TEMPO_PAUSA 400 // tempo de cura da resina pela luz UV (ms)
 
-#define PASSOS_UM  2038*3/1000 // passos do motor por mm movimentado
-#define INTERVALO_PASSOS  1 // intervalo entre cada passo
+#define PASSOS_UM  330// passos do motor por mm movimentado
+#define INTERVALO_PASSOS 2 // intervalo entre cada passo
 #define PASSOS_VOLTA  8 // passos / volta = 4 ou 8
 
 #include <Adafruit_GFX.h>         // Core graphics library
@@ -22,15 +22,6 @@ Adafruit_ILI9341     tft    = Adafruit_ILI9341(TFT_CS, TFT_DC);
 
 File root;
 
-/*const bool steps[5][4] = {
-{1,1,0,0},
-{0,1,1,0},
-{0,0,1,1},
-{1,0,0,1},
-{0,0,0,0},
-};*/
-
-
 const bool steps[9][4] = {
 {1,0,0,0},
 {1,1,0,0},
@@ -45,14 +36,8 @@ const bool steps[9][4] = {
 
 
 void setup(void) {
-  //Serial.begin(9600);
-  
-  habilitaPortas();
-  iniciaTFT();
-  iniciaSD();
-}
 
-void habilitaPortas() {
+  // habilita portas
   pinMode(A3, INPUT);
   pinMode(3, OUTPUT);
   pinMode(4, OUTPUT);
@@ -60,34 +45,18 @@ void habilitaPortas() {
   pinMode(6, OUTPUT);
   pinMode(7, OUTPUT);
 
-  //DDRD = B00111110;
-  
-  /*digitalWrite(3, LOW);
-  digitalWrite(4, LOW);
-  digitalWrite(5, LOW);
-  digitalWrite(6, LOW);
-  digitalWrite(7, LOW);*/
-}
-
-void iniciaTFT() {
+  // inicia tft
   tft.begin();
   tft.setRotation(0);
-  //tft.fillScreen(ILI9341_BLACK);
-  //delay(1000);
-  //Serial.println("tela");
-}
-
-void iniciaSD() {
+  
+  // inicia SD
   if(!SD.begin(SD_CS)) { // ESP32 requires 25 MHz limit
     tft.fillScreen(ILI9341_RED);
     for(;;); // Fatal error, do not continue
   }
-  
-  tft.fillScreen(ILI9341_CYAN);
-  ////Serial.println(SD.ls("/",LS_DATE));
+  //tft.fillScreen(ILI9341_CYAN);
 
   root = SD.open("/");
-  //delay(1000);
 }
 
 bool impressaoFinalizada = false;
@@ -100,7 +69,7 @@ void printFiles(File dir)
     if (! entry)
     {
       impressaoFinalizada = true;
-      moverUM(100);
+      moverUM(1);
       return;
     }
 
@@ -116,8 +85,9 @@ void printFiles(File dir)
     tft.fillScreen(ILI9341_BLACK);
     delay(TEMPO_PAUSA);
 
-    moverUM(200);
-    moverUM(-100);
+    moverUM(3);
+    moverUM(-2);
+    
     arquivo++;
     delay(TEMPO_PAUSA);
     
@@ -129,9 +99,19 @@ void moverUM(int um) {
   int passo = 0;
   int passos = PASSOS_UM * abs(um);
   int voltas = passos / PASSOS_VOLTA;
-  byte sobraPassos = passos % PASSOS_VOLTA;
-  while(voltas >= 0) {
-    while((voltas > 0 && passo < PASSOS_VOLTA) || (voltas == 0 && passo < sobraPassos)) {
+  int sobraPassos = int(passos) % PASSOS_VOLTA;
+  
+  /*Serial.print(PASSOS_UM);
+  Serial.print("-");
+  Serial.print(passos);
+  Serial.print("-");
+  Serial.print(voltas);
+  Serial.print("-");
+  Serial.print(sobraPassos);
+  Serial.println("-");*/
+  
+  while(voltas > 0) {
+    while(passo < PASSOS_VOLTA) {
       digitalWrite(4, steps[passo][!dir ? 0 : 3]);
       digitalWrite(5, steps[passo][!dir ? 1 : 2]);
       digitalWrite(6, steps[passo][!dir ? 2 : 1]);
@@ -142,6 +122,15 @@ void moverUM(int um) {
     passo = 0;
     voltas--;
   }
+
+  while(passo < sobraPassos) {
+      digitalWrite(4, steps[passo][!dir ? 0 : 3]);
+      digitalWrite(5, steps[passo][!dir ? 1 : 2]);
+      digitalWrite(6, steps[passo][!dir ? 2 : 1]);
+      digitalWrite(7, steps[passo][!dir ? 3 : 0]);
+      passo++;
+      delay(INTERVALO_PASSOS);
+    }
   
   digitalWrite(4, steps[PASSOS_VOLTA][0]);
   digitalWrite(5, steps[PASSOS_VOLTA][1]);
@@ -154,14 +143,12 @@ bool teclaPressionada = false;
 
 void loop() {
   if (!teclaPressionada) {
-    //Serial.println("mover");
-    moverUM(-100);
+    moverUM(-1);
     teclaPressionada = digitalRead(A3);
   }
   if (teclaPressionada && !impressaoFinalizada) {
-    moverUM(200);
+    moverUM(1);
     tft.fillScreen(ILI9341_BLACK);
-    delay(1000);
     printFiles(root);
   }
 }
